@@ -36,6 +36,8 @@ This Readme is written for [DeepSpeech v0.5.0](https://github.com/mozilla/DeepSp
 ```
 virtualenv -p python3 deepspeech-german
 source deepspeech-german/bin/activate
+# get the right version from https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
+pip install https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
 pip3 install -r python_requirements.txt
 ```
 
