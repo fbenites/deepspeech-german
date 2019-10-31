@@ -31,10 +31,13 @@ This Readme is written for [DeepSpeech v0.5.0](https://github.com/mozilla/DeepSp
 
 ### Requirements
 
+I modified the instructions mirroring what worked for me, fixing paths and command lines.
+
 #### Installing Python bindings
 
 ```
-virtualenv -p python3 deepspeech-german
+#from the clone of this directory
+virtualenv -p python3 ~/virtuualenvs/deepspeech-german
 source deepspeech-german/bin/activate
 # get the right version from https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
 pip install https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
@@ -51,9 +54,12 @@ xargs -a linux_requirements.txt sudo apt-get install
 
 #### Mozilla DeepSpeech
 ```
-$ wget https://github.com/mozilla/DeepSpeech/archive/v0.5.0.tar.gz 
-$ tar -xzvf v0.5.0.tar.gz
-$ mv DeepSpeech-0.5.0 DeepSpeech
+# mabye necessary to go back one level with cd..
+cd .. && mkdir tmp && cd tmp
+wget https://github.com/mozilla/DeepSpeech/archive/v0.5.0.tar.gz 
+tar -xzvf v0.5.0.tar.gz
+mv DeepSpeech-0.5.0 ../DeepSpeech
+cd ../ && rm -r tmp
 ```
 
 ### Speech Corpus
@@ -67,42 +73,49 @@ $ mv DeepSpeech-0.5.0 DeepSpeech
 
 **1. _Tuda-De_**
 ```
-$ mkdir tuda
-$ cd tuda
-$ wget http://www.repository.voxforge1.org/downloads/de/german-speechdata-package-v2.tar.gz
-$ tar -xzvf german-speechdata-package-v2.tar.gz
+mkdir tuda
+cd tuda
+wget http://www.repository.voxforge1.org/downloads/de/german-speechdata-package-v2.tar.gz
+tar -xzvf german-speechdata-package-v2.tar.gz
+cd ..
 ```
 
 **2. _Mozilla_**
 ```
-$ cd ..
-$ mkdir mozilla
-$ cd mozilla
-$ wget https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-2/de.tar.gz
+mkdir mozilla
+cd mozilla
+wget https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-2/de.tar.gz
+tar xfvz de.tar.gz
+cd ..
 ```
  
 **3. _Voxforge_**
 ```
-$ cd ..
-$ mkdir voxforge
-$ cd voxforge
+mkdir voxforge
+cd voxforge
 ```
 
 ```python
 from audiomate.corpus import io
 dl = io.VoxforgeDownloader(lang='de')
-dl.download(voxforge_corpus_path)
+dl.download("./")
+#Afterdownloading exit
+CTRL-D
+cd ..
 ```
 
 - **Prepare the Audio Data**
 
 ```
-$ cd ..
-$ git clone https://github.com/AASHISHAG/deepspeech-german.git
-$ deepspeech-german/pre-processing/prepare_data.py --tuda $tuda_corpus_path  $export_path_data_tuda
-$ deepspeech-german/voxforge/run_to_utf_8.sh
-$ deepspeech-german/prepare_data.py --voxforge $voxforge_corpus_path $export_path_data_voxforge
-$ DeepSpeech/bin/import_cv2.py --deepspeech-german/data/alphabet.txt $export_path_data_mozilla
+cd ..
+git clone https://github.com/AASHISHAG/deepspeech-german.git
+mkdir export/ export/tuda export/voxforge export/mozilla
+python deepspeech-german/pre-processing/prepare_data.py --tuda tuda/german-speechdata-package-v2/  export/tuda
+#this runs and awaits a voxforge directory location exactly as described here
+deepspeech-german/pre-processing/run_to_utf_8.sh
+python deepspeech-german/pre-processing/prepare_data.py --voxforge voxforge/ export/voxforge/
+# possible needs sudo apt-get install sox libsox-fmt-mp3
+python DeepSpeech/bin/import_cv2.py --filter_alphabet deepspeech-german/data/alphabet.txt mozilla/
 ```
 
 _NOTE: Change the path accordingly in run_to_utf_8.sh_
@@ -114,12 +127,12 @@ We used [KenLM](https://github.com/kpu/kenlm.git) toolkit to train a 3-gram lang
 - **Installation**
 
 ```
-$ git clone https://github.com/kpu/kenlm.git
-$ cd kenlm
-$ mkdir -p build
-$ cd build
-$ cmake ..
-$ make -j `nproc`
+git clone https://github.com/kpu/kenlm.git
+cd kenlm
+mkdir -p build
+cd build
+cmake ..
+make -j `nproc`
 ```
 
 - **Corpus**
@@ -129,14 +142,14 @@ We used an open-source [German Speech Corpus](http://ltdata1.informatik.uni-hamb
 1. Download the data
 
 ```
-$ wget http://ltdata1.informatik.uni-hamburg.de/kaldi_tuda_de/German_sentences_8mil_filtered_maryfied.txt.gz
-$ gzip -d German_sentences_8mil_filtered_maryfied.txt.gz
+wget http://ltdata1.informatik.uni-hamburg.de/kaldi_tuda_de/German_sentences_8mil_filtered_maryfied.txt.gz
+gzip -d German_sentences_8mil_filtered_maryfied.txt.gz
 ```
 
 2. Pre-process the data
 
 ```
-$ deepspeech-german/pre-processing/prepare_vocab.py $text_corpus_path $exp_path/clean_vocab.txt
+deepspeech-german/pre-processing/prepare_vocab.py $text_corpus_path $exp_path/clean_vocab.txt
 ```
 
 3. Build the Language Model
@@ -166,12 +179,12 @@ To build _Trie_ for the above trained _Language Model._
 
 ```
 # The DeepSpeech tools are used to create the trie
-$ git clone https://github.com/mozilla/tensorflow.git
-$ cd tensorflow
-$ git checkout origin/r1.13
-$ ./configure
-$ ln -s ../DeepSpeech/native_client ./
-$ bazel build --config=monolithic -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" --copt=-fvisibility=hidden //native_client:libdeepspeech.so //native_client:generate_trie --config=cuda
+git clone https://github.com/mozilla/tensorflow.git
+cd tensorflow
+git checkout origin/r1.13
+./configure
+ln -s ../DeepSpeech/native_client ./
+bazel build --config=monolithic -c opt --copt=-O3 --copt="-D_GLIBCXX_USE_CXX11_ABI=0" --copt=-fvisibility=hidden //native_client:libdeepspeech.so //native_client:generate_trie --config=cuda
 ```
 
 _NOTE_: 
@@ -190,6 +203,11 @@ Would you like to interactively configure ./WORKSPACE for Android builds? [y/N]:
 ```
 
 _Refer [Mozilla's documentation](https://github.com/mozilla/DeepSpeech/tree/master/native_client) for updates. We used **Bazel Build label: 0.19.2** with **DeepSpeechV0.5.0**_
+
+_Remarks_ Bazel may strike with ds_git_version.sh problem since the deepspeech is not from the repository (missing .git version). You can fix it by changing the file df_git_version and setting the variable by hand:
+DS_GIT_VERSION="0.5.0";
+Also comment out the parts where the script return 1.
+A modified ds_git_version.sh can be found in this directory.
 
 2. Build Trie
 ```
