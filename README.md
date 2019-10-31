@@ -31,7 +31,7 @@ This Readme is written for [DeepSpeech v0.5.0](https://github.com/mozilla/DeepSp
 
 ### Requirements
 
-I modified the instructions mirroring what worked for me, fixing paths and command lines.
+I modified the instructions mirroring what worked for me, fixing paths and command lines. I replaced the $exp_path by a fixed path, to avoid setting it, but it can be easily replaced back.
 
 #### Installing Python bindings
 
@@ -142,26 +142,28 @@ We used an open-source [German Speech Corpus](http://ltdata1.informatik.uni-hamb
 1. Download the data
 
 ```
+mkdir german_sents && cd german_sents
 wget http://ltdata1.informatik.uni-hamburg.de/kaldi_tuda_de/German_sentences_8mil_filtered_maryfied.txt.gz
 gzip -d German_sentences_8mil_filtered_maryfied.txt.gz
+cd ..
 ```
 
 2. Pre-process the data
 
 ```
-deepspeech-german/pre-processing/prepare_vocab.py $text_corpus_path $exp_path/clean_vocab.txt
+python deepspeech-german/pre-processing/prepare_vocab.py german_sents/German_sentences_8mil_filtered_maryfied.txt export/clean_vocab.txt
 ```
 
 3. Build the Language Model
 ```
-$kenlm/build/bin/lmplz --text $exp_path/clean_vocab.txt --arpa $exp_path/words.arpa --o 3
-$kenlm/build/bin/build_binary -T -s $exp_path/words.arpa $exp_path/lm.binary
+kenlm/build/bin/lmplz --text export/clean_vocab.txt --arpa export/words.arpa --o 3
+kenlm/build/bin/build_binary -T -s export/words.arpa export/lm.binary
 ```
 
 #### NOTE: use [-S](https://kheafield.com/code/kenlm/estimation/) memoryuse_in_%, if malloc expection occurs
 Example:
 ```
-$kenlm/build/bin/lmplz --text $exp_path/clean_vocab.txt --arpa $exp_path/words.arpa --o 3 -S 50%
+kenlm/build/bin/lmplz --text export/clean_vocab.txt --arpa export/words.arpa --o 3 -S 50%
 ```
 
 ### Trie
@@ -210,8 +212,8 @@ Also comment out the parts where the script return 1.
 A modified ds_git_version.sh can be found in this directory.
 
 2. Build Trie
-```
-$ DeepSpeech/native_client/generate_trie $path/alphabet.txt $path/lm.binary $exp_path/trie
+``` # generate_trie might be in the bazel cache.... ~/.cache/bazel/
+DeepSpeech/native_client/generate_trie export/alphabet.txt export/lm.binary export/trie
 ```
 
 ### Training
@@ -219,7 +221,7 @@ $ DeepSpeech/native_client/generate_trie $path/alphabet.txt $path/lm.binary $exp
 Define the path of the corpus and the hyperparameters in _deepspeech-german/train_model.sh_ file.
 
 ```
-$ nohup deepspeech-german/train_model.sh &
+nohup deepspeech-german/train_model.sh &
 ```
 
 ### Hyper-Paramter Optimization
@@ -227,7 +229,7 @@ $ nohup deepspeech-german/train_model.sh &
 Define the path of the corpus and the hyperparameters in _deepspeech-german/hyperparameter_optimization.sh_ file.
 
 ```
-$ nohup deepspeech-german/hyperparameter_optimization.sh &
+nohup deepspeech-german/hyperparameter_optimization.sh &
 ```
 
 ### Results
