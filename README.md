@@ -37,7 +37,7 @@ I modified the instructions mirroring what worked for me, fixing paths and comma
 
 ```
 #from the clone of this directory
-virtualenv -p python3 ~/virtuualenvs/deepspeech-german
+virtualenv -p python3 ~/virtualenvs/deepspeech-german
 source deepspeech-german/bin/activate
 # get the right version from https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
 pip install https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
@@ -223,6 +223,15 @@ Define the path of the corpus and the hyperparameters in _deepspeech-german/trai
 ```
 nohup deepspeech-german/train_model.sh &
 ```
+_Remarks_ if missing ds_ctcdecoder:
+```
+mkdir models
+cd DeepSpeech/native_client/ctcdecode
+sudo apt install swig
+make -j 4
+python setup.py install
+cd ../../
+
 
 ### Hyper-Paramter Optimization
 
