@@ -1,0 +1,6 @@
+Use docker fbenites/deepspeech_german_skeletton-latest
+singularity pull docker://fbenites/deepspeech_german_skeletton:latest
+
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64/:/usr/local/cuda-10.0/lib64/stubs/:/.singularity.d/libs:/usr/local/cuda/extras/CUPTI/lib64
+
+srun   --pty --ntasks=4 --cpus-per-task=2 --mem=64G --gres=gpu:1     singularity shell  -B /cluster/home/benf/venvs:/venv -B /cluster/data/benf/Speech2Text/:/Speech2Text  ./deepspeech_german_skeletton-latest.simg
