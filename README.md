@@ -243,6 +243,20 @@ sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 keras.backend.set_session(sess)
 ```
+_Remarks_ check CUDA and NVidia versions match
+Some CUDA libraries depend on an exact version of a nvidia driver, some not...
+
+_Remarks_ if 
+InvalidArgumentError (see above for traceback): Not enough time for target transition sequence (required: 50, available: 0)0You can turn this error into a warning by using the flag ignore_longer_outputs_than_inputs
+
+ignore_longer_outputs_than_inputs must be set in Deepspeech.py, from (line 189):
+```
+total_loss = tf.nn.ctc_loss(labels=batch_y, inputs=logits, sequence_length=batch_seq_len)
+```
+to:
+```
+total_loss = tf.nn.ctc_loss(labels=batch_y, inputs=logits, sequence_length=batch_seq_len, ignore_longer_outputs_than_inputs=True)
+```
 
 ### Hyper-Paramter Optimization
 
