@@ -212,6 +212,45 @@ DS_GIT_VERSION="0.5.0";
 Also comment out the parts where the script return 1.
 A modified ds_git_version.sh can be found in this directory.
 
+_Remarks_ if build stops and claim Python.h is missing
+install libpython3.6-dev and retry
+if not
+create directory in third_party/python3.6m/ and create file BUILD with following
+```
+licenses(["notice"])  # New BSD, Python Software Foundation
+
+package(default_visibility = ["//visibility:public"])
+
+
+cc_library(
+    name = "python3.6m",
+    hdrs = glob(["include/*.h"]),
+    visibility = ["//visibility:public"],
+)
+```
+link the include: ln -s /usr/include/python3.6m/ thirdparty/python3.6m/include 
+change compile command for generate trie native_client/BUILD:
+
+```
+cc_binary(
+    name = "generate_trie",
+    srcs = [
+            "generate_trie.cpp",
+            "alphabet.h",
+           ] + DECODER_SOURCES,
+    includes = DECODER_INCLUDES ,
+    visibility = ["//visibility:public"],
+    copts = ["-std=c++11"]+ ["-Ithird_party/python3.6m/include/"],
+    linkopts = ["-lm", "-ldl", "-pthread"],
+    defines = ["KENLM_MAX_ORDER=6"],
+     deps = [
+        "//third_party/python3.6m", 
+        # plus any other deps
+    ],
+)
+```
+then retry
+
 2. Build Trie
 ``` # generate_trie might be in the bazel cache.... ~/.cache/bazel/
 DeepSpeech/native_client/generate_trie export/alphabet.txt export/lm.binary export/trie
