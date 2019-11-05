@@ -1,6 +1,22 @@
+# Start
 Use docker fbenites/deepspeech_german_skeletton-latest
 singularity pull docker://fbenites/deepspeech_german_skeletton:latest
 
+
 export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64/:/usr/local/cuda-10.0/lib64/stubs/:/.singularity.d/libs:/usr/local/cuda/extras/CUPTI/lib64
 
+# Run 
 srun   --pty --ntasks=4 --cpus-per-task=2 --mem=64G --gres=gpu:1     singularity shell  -B /cluster/home/benf/venvs:/venv -B /cluster/data/benf/Speech2Text/:/Speech2Text  ./deepspeech_german_skeletton-latest.simg
+
+# Train
+Singularity deepspeech_german_skeletton-latest.simg:/cluster/data/benf/Speech2Text> bash deepspeech-german/train_model_all.sh
+
+# Test:
+
+##single audio file
+deepspeech --model models/output_graph.pb --alphabet ./deepspeech-german/data/alphabet.txt --lm export/lm.binary --trie export/trie --audio /cluster/data/benf/Speech2Text/tuda/german│···············································
+-speechdata-package-v2/train/2014-05-13-15-38-57_Kinect-Beam.wav
+
+## batch
+python ./DeepSpeech/DeepSpeech.py  --test_files ./export/test.csv --alphabet_config_path ./deepspeech-german/data/alphabet.txt --lm_trie_path ./export/trie --lm_binary_path ./export/│···············································
+lm.binary --test_batch_size 16       --export_dir ./models 
