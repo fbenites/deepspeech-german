@@ -30,7 +30,9 @@ DON'T FORGET TO PUT THE HEADERS IN test and dev
 
 # preprocess wav
 
-check they have 16khz and not more (else too big for gpu memory (12 GB))
+check they have 16khz and not more (else too big for gpu memory (12 GB)).
+check file size with of largest one (check any strange issues):
+find . -type f -printf "%s\t%p\n" | sort -n | tail -1
 
 
 
