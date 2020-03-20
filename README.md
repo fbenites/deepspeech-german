@@ -38,7 +38,7 @@ I modified the instructions mirroring what worked for me, fixing paths and comma
 ```
 #from the clone of this directory
 virtualenv -p python3 ~/virtualenvs/deepspeech-german
-source deepspeech-german/bin/activate
+source ~/virtualenvs/deepspeech-german/bin/activate
 # get the right version from https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
 # take the one which correspond to your setup https://tools.taskcluster.net/index/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11/gpu
 pip install https://index.taskcluster.net/v1/task/project.deepspeech.deepspeech.native_client.v0.5.0-alpha.11.gpu/artifacts/public/deepspeech_gpu-0.5.0a11-cp36-cp36m-manylinux1_x86_64.whl
